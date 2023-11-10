@@ -9,6 +9,9 @@
   "author": "Jordan Blancaflor",
   "license": "UNLICENSED",
   "devDependencies": {
+    "@types/chrome": "^0.0.251",
+    "@types/react": "^18.2.37",
+    "@types/react-dom": "^18.2.15",
     "copy-webpack-plugin": "^11.0.0",
     "css-loader": "^6.8.1",
     "html-webpack-plugin": "^5.5.3",

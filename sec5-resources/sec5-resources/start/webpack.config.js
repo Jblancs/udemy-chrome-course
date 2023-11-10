@@ -8,6 +8,8 @@ module.exports = {
   entry: {
     popup: path.resolve('src/popup/popup.tsx'),
     options: path.resolve('src/options/options.tsx'),
+    background: path.resolve('src/background/background.ts'),
+    contentScript: path.resolve('src/contentScript/contentScript.ts'),
   },
   module: {
     rules: [
@@ -100,3 +102,8 @@ function getHtmlPlugins(chunks) {
 
 // adding rule type: asset/resource lets us import certain types of files directly into typescript code
 // this is important since some modules are packed with font files, svg, etc
+
+// background and contentScript ----------------------------------------------------------------
+// add new chunk since background and contentScript have their own js file
+// since they are js files we do not need to add an html plugin
+
