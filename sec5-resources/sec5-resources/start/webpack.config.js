@@ -7,6 +7,7 @@ module.exports = {
   devtool: 'cheap-module-source-map',
   entry: {
     popup: path.resolve('src/popup/popup.tsx'),
+    options: path.resolve('src/options/options.tsx'),
   },
   module: {
     rules: [
@@ -15,22 +16,26 @@ module.exports = {
         test: /\.tsx?$/,
         exclude: /node_modules/,
       },
+      {
+        use: ['style-loader', 'css-loader'],
+        test: /\.css$/i,
+      },
+      {
+        type: 'asset/resource',
+        test: /\.(jpg|jpeg|png|woff|woff2|eot|ttf|svg)$/,
+      }
     ],
   },
   plugins: [
     new CopyPlugin({
       patterns: [
         {
-          from: path.resolve('src/manifest.json'),
+          from: path.resolve('src/static'),
           to: path.resolve('dist'),
         },
       ],
     }),
-    new HtmlPlugin({
-      title: 'React Extension',
-      filename: 'popup.html',
-      chunks: ['popup'],
-    }),
+    ...getHtmlPlugins(['popup', 'options']),
   ],
   resolve: {
     extensions: ['.tsx', 'ts', '.js'],
@@ -38,6 +43,11 @@ module.exports = {
   output: {
     filename: '[name].js',
     path: path.resolve('dist'),
+  },
+  optimization: {
+    splitChunks: {
+      chunks: 'all',
+    },
   },
 }
 
@@ -65,3 +75,28 @@ module.exports = {
 // Uncaught EvalError: Refused to evaluate a string as JavaScript because 'unsafe-eval' is not an allowed source of script in the following Content Security Policy directive: "script-src 'self'".
 // result of development mode of webpack
 // add extra field devtool: 'cheap-module-source-map',
+
+// adding options page
+// create another html plugin and chunk (follow pattern for popup)
+// since html plugin follow same pattern we can use a helper function getHTMLPlugins to create it (pass in array of chunk names)
+// destructure since we return an array of plugins
+
+function getHtmlPlugins(chunks) {
+  return chunks.map(
+    (chunk) =>
+      new HtmlPlugin({
+        title: 'React Extension',
+        filename: `${chunk}.html`,
+        chunks: [chunk],
+      })
+  )
+}
+
+// add optimization splitChunks which allows chunks to share modules
+
+// CSS loader ----------------------------------------------------------------------------------
+// install CSS loaders and add new rule for them
+// in dist folder you wont see css files since the loaders bundle css into the js files
+
+// adding rule type: asset/resource lets us import certain types of files directly into typescript code
+// this is important since some modules are packed with font files, svg, etc
