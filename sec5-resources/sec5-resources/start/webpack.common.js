@@ -1,10 +1,9 @@
 const path = require('path') //built in module for handling directories
 const CopyPlugin = require('copy-webpack-plugin') //copies files into dist folder
 const HtmlPlugin = require('html-webpack-plugin') //copies html to dist
+const { CleanWebpackPlugin } = require('clean-webpack-plugin')
 
 module.exports = {
-  mode: 'development',
-  devtool: 'cheap-module-source-map',
   entry: {
     popup: path.resolve('src/popup/popup.tsx'),
     options: path.resolve('src/options/options.tsx'),
@@ -25,10 +24,13 @@ module.exports = {
       {
         type: 'asset/resource',
         test: /\.(jpg|jpeg|png|woff|woff2|eot|ttf|svg)$/,
-      }
+      },
     ],
   },
   plugins: [
+    new CleanWebpackPlugin({
+      cleanStaleWebpackAssets: false,
+    }),
     new CopyPlugin({
       patterns: [
         {
@@ -107,3 +109,17 @@ function getHtmlPlugins(chunks) {
 // add new chunk since background and contentScript have their own js file
 // since they are js files we do not need to add an html plugin
 
+// Production ----------------------------------------------------------------------------------
+// in development mode size of extension is 4.8 MB
+// production mode will package the extension into a smaller size
+// created webpack.dev.js and webpack.prod.js
+// renamed this file to webpack.common.js since it will be shared by dev and prod
+// install module "webpack-merge" to share
+
+// update package.json scripts since there are 2 webpack configs now
+// "npm start" command runs dev
+// "npm run build" command runs prod
+// extension takes up more memory since there are leftover files from dev
+
+// install clean-webpack-plugin to clean up files
+// import plugin and add "cleanStaleWebpackAssets: false" since we only want dist to be cleaned when switching build mode
