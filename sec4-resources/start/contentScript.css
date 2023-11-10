@@ -1,0 +1,4 @@
+body {
+  background-color: tan !important;
+}
+/* !important makes sure css isnt over written by other web page's styling */
