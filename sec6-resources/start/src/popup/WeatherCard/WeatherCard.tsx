@@ -1,14 +1,29 @@
 import React, { useEffect, useState } from 'react'
-import { fetchOpenWeatherData, OpenWeatherData } from '../../utils/api'
-import { Box, Card, CardContent, Typography } from '@mui/material'
+import { fetchOpenWeatherData, OpenWeatherData, OpenWeatherTempScale } from '../../utils/api'
+import {
+  Box,
+  Card,
+  CardContent,
+  Typography,
+  CardActions,
+  Button,
+} from '@mui/material'
 
 const WeatherCardContainer: React.FC<{
   children: React.ReactNode
-}> = ({ children }) => {
+  onDelete?: () => void
+}> = ({ children, onDelete }) => {
   return (
     <Box mx={'4px'} my={'16px'}>
       <Card>
         <CardContent>{children}</CardContent>
+        <CardActions>
+          {onDelete && (
+            <Button color="error" onClick={onDelete}>
+              Delete
+            </Button>
+          )}
+        </CardActions>
       </Card>
     </Box>
   )
@@ -18,22 +33,24 @@ type WeatherCardState = 'loading' | 'error' | 'ready'
 
 const WeatherCard: React.FC<{
   city: string
-}> = ({ city }) => {
+  tempScale: OpenWeatherTempScale
+  onDelete?: () => void
+}> = ({ city, tempScale, onDelete }) => {
   const [weatherData, setWeatherData] = useState<OpenWeatherData | null>(null)
   const [cardState, setCardState] = useState<WeatherCardState>('loading')
 
   useEffect(() => {
-    fetchOpenWeatherData(city)
+    fetchOpenWeatherData(city, tempScale)
       .then((data) => {
         setWeatherData(data)
         setCardState('ready')
       })
       .catch((err) => setCardState('error'))
-  }, [city])
+  }, [city, tempScale])
 
   if (cardState === 'loading' || cardState === 'error') {
     return (
-      <WeatherCardContainer>
+      <WeatherCardContainer onDelete={onDelete}>
         <Typography variant="body1">
           {cardState === 'loading'
             ? 'Loading...'
@@ -44,7 +61,7 @@ const WeatherCard: React.FC<{
   }
 
   return (
-    <WeatherCardContainer>
+    <WeatherCardContainer onDelete={onDelete}>
       <Typography variant="h5">{city}</Typography>
       <Typography variant="body1">
         {Math.round(weatherData.main.temp)}
