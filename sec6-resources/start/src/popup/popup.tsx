@@ -2,9 +2,10 @@ import React, { useEffect, useState } from 'react'
 import { createRoot } from 'react-dom/client'
 import { Box, Grid, InputBase, Paper, IconButton } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
+import PictureInPictureIcon from '@mui/icons-material/PictureInPicture'
 import 'fontsource-roboto'
 import './popup.css'
-import WeatherCard from './WeatherCard'
+import WeatherCard from '../components/WeatherCard'
 import {
   setStoredCities,
   getStoredCities,
@@ -12,6 +13,7 @@ import {
   getStoredOptions,
   LocalStorageOptions,
 } from '../utils/storage'
+import { Messages } from '../utils/messages'
 
 const App: React.FC<{}> = () => {
   const [cities, setCities] = useState<string[]>([])
@@ -54,6 +56,14 @@ const App: React.FC<{}> = () => {
     })
   }
 
+  const handleOverlayButton = async () => {
+    let queryOptions = { active: true, lastFocusedWindow: true }
+    const [tab] = await chrome.tabs.query(queryOptions)
+    if (tab) {
+      const res = await chrome.tabs.sendMessage(tab.id, Messages.TOGGLE_OVERLAY)
+    }
+  }
+
   // if statement ------------------------------------------------------------------
   if (!options) {
     return null
@@ -80,6 +90,15 @@ const App: React.FC<{}> = () => {
         <Grid item>
           <Paper>
             <Box>
+              <IconButton onClick={handleOverlayButton}>
+                <PictureInPictureIcon />
+              </IconButton>
+            </Box>
+          </Paper>
+        </Grid>
+        <Grid item>
+          <Paper>
+            <Box>
               <IconButton onClick={handleTempScaleButtonClick}>
                 {options.tempScale === 'metric' ? '\u2103' : '\u2109'}
               </IconButton>
@@ -87,10 +106,9 @@ const App: React.FC<{}> = () => {
           </Paper>
         </Grid>
       </Grid>
-      {
-        options.homeCity != '' &&
+      {options.homeCity != '' && (
         <WeatherCard city={options.homeCity} tempScale={options.tempScale} />
-      }
+      )}
       {cities.map((city, index) => (
         <WeatherCard
           city={city}

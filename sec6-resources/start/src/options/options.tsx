@@ -8,6 +8,7 @@ import {
   Grid,
   Box,
   Button,
+  Switch
 } from '@mui/material'
 import 'fontsource-roboto'
 import './options.css'
@@ -35,6 +36,13 @@ const App: React.FC<{}> = () => {
     })
   }
 
+  const handleAutoOverlayChange = ((hasAutoOverlay: boolean) => {
+    setOptions({
+      ...options,
+      hasAutoOverlay
+    })
+  })
+
   const handleSaveButtonClick = () => {
     setFormState('saving')
     setStoredOptions(options).then(() => {
@@ -57,6 +65,14 @@ const App: React.FC<{}> = () => {
           <Grid container direction="column" spacing={4}>
             <Grid item>
               <Typography variant="h4">Weather Extension Options</Typography>
+            </Grid>
+            <Grid item>
+              <Typography variant="body1">Auto Toggle Overlay</Typography>
+              <Switch
+                checked={options.hasAutoOverlay}
+                onChange={(event, checked) => handleAutoOverlayChange(checked)}
+                disabled={isFieldsDisabled}
+              />
             </Grid>
             <Grid item>
               <Typography variant="body1">Home City Name</Typography>
